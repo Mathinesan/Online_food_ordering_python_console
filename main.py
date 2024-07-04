@@ -1,3 +1,6 @@
+import asyncio
+
+
 class Food:
 
     def user(self):
@@ -7,7 +10,7 @@ class Food:
             if len(self.ph_num) == 10 and self.ph_num.isdigit():
                 break
             else:
-                print("Invalid phone number. Please enter a 10-digit number.")
+                print("Do you even have a mobile number?")
 
         print("User Details")
         print("Name:", self.name)
@@ -46,7 +49,7 @@ class Food:
             self.chosen_restaurant = input()
             if self.chosen_restaurant in ['1', '2', '3']:
                 self.chosen_restaurant_name = \
-                self.restaurants[chosen_city_name][int(self.chosen_restaurant) - 1].split('. ')[1]
+                    self.restaurants[chosen_city_name][int(self.chosen_restaurant) - 1].split('. ')[1]
                 print(f"You've chosen {self.chosen_restaurant_name}")
                 break
             else:
@@ -70,19 +73,21 @@ class Food:
 
         self.menu = menus[self.chosen_restaurant_name]
         print("Menu for", self.chosen_restaurant_name)
-        for item, price in self.menu.items():
-            print(f"{item}: Rs {price}")
+        menu_items = list(self.menu.keys())
+        for i, item in enumerate(menu_items, start=1):
+            print(f"{i}. {item}: Rs {self.menu[item]}")
 
         self.order = {}
         while True:
-            item = input("Enter the item you want to order (type 'done' when finished): ")
-            if item == "done":
+            num = input("Enter the number of the item you want to order (type 'q' when finished): ")
+            if num == "q":
                 break
-            elif item in self.menu:
+            elif num.isdigit() and 1 <= int(num) <= len(menu_items):
+                item = menu_items[int(num) - 1]
                 quantity = int(input(f"Enter the quantity for {item}: "))
                 self.order[item] = self.order.get(item, 0) + quantity
             else:
-                print("Invalid item! Please choose from the menu.")
+                print("Do I have to teach you number systems?")
 
     def OrderConfirmation(self):
         print("Order Confirmation")
@@ -106,31 +111,62 @@ class Food:
             print(f"Discount: Rs {discount}")
             print(f"Total after discount: Rs {total_with_gst}")
 
+        elif coupon == "NEW20":
+            discount = total_with_gst * 0.2
+            total_with_gst -= discount
+            print(f"Discount: Rs {discount}")
+            print(f"Total after discount: Rs {total_with_gst}")
+
+        else:
+            print("Stop Guessing, you don't have any coupons.")
+
         self.final_amount = total_with_gst
 
-    def Payment(self):
+    async def Payment(self):
         print("Payment Method")
         print("1. UPI")
         print("2. Cash on Delivery")
         while True:
             payment_method = input("Choose your payment method: ")
             if payment_method == "1":
-                print("You chose UPI. Please complete the payment via your UPI app.")
+                print("You chose UPI.")
+                upi_id = input("Enter your UPI id : ")
+                print("Complete the payment in the provided UPI app.")
+                await asyncio.sleep(5)
+                print("Payment Successful")
+
                 break
+
             elif payment_method == "2":
-                self.final_amount += 60
-                print(f"You chose Cash on Delivery. An additional delivery fee of Rs 60 will be added.")
+
+                if self.chosen_city == '1':
+                    print(f"You chose Cash on Delivery. An additional delivery fee of Rs 60 will be added.")
+                    self.final_amount += 60
+
+                elif self.chosen_city == '2':
+                    print(f"You chose Cash on Delivery. An additional delivery fee of Rs 60 will be added.")
+                    self.final_amount += 120
+
+                elif self.chosen_city == '3':
+                    print(f"You chose Cash on Delivery. An additional delivery fee of Rs 60 will be added.")
+                    self.final_amount += 80
+
+                elif self.chosen_city == '4':
+                    print(f"You chose Cash on Delivery. An additional delivery fee of Rs 60 will be added.")
+                    self.final_amount += 100
+
                 print(f"Total amount to be paid: Rs {self.final_amount}")
                 break
+
             else:
-                print("Invalid input! Please choose a valid payment method.")
+                print("Do I have to insist you everytime on following the instructions?")
 
     def DeliveryPartnerDetails(self):
         delivery_partners = {
-            "Erode": "John Doe - 9876543210",
-            "Coimbatore": "Jane Smith - 8765432109",
-            "Salem": "Bob Johnson - 7654321098",
-            "Namakkal": "Alice Brown - 6543210987"
+            "Erode": "Munnusamy - 9876543210",
+            "Coimbatore": "Mukkusamy - 8765432109",
+            "Salem": "Maadasamy - 7654321098",
+            "Namakkal": "Muthusamy - 6543210987"
         }
         print("Delivery Partner Details")
         print(f"Delivery Partner: {delivery_partners[self.cities[self.chosen_city]]}")
@@ -138,19 +174,28 @@ class Food:
         self.address = input("Enter your delivery address: ")
         self.estimated_time = "30-45 minutes"
 
+        print()
+        print(f"Name of the user: {self.name}")
         print(f"Delivery Address: {self.address}")
         print(f"Your order will reach you in {self.estimated_time}.")
         print("Thank you for ordering with us!")
 
-        rating = input("Please rate our service (1-5): ")
-        print(f"Thank you for your rating of {rating}!")
+        rating = int(input("Please rate our service (1-5): "))
+        if 0 < rating <= 5:
+            print(f"Thank you for your rating of {rating}!")
+        else:
+            print("Wrong Rating! Eat sand, order won't be delivered.")
 
 
+print("----------Welcome to 'Not Zomato' online food ordering application---------- ")
+print("Use code : 'NEW20' for new users")
 obj = Food()
 obj.user()
 obj.city()
 obj.Restaurants()
 obj.Food_menu()
 obj.OrderConfirmation()
-obj.Payment()
+# obj.Payment()
+task = asyncio.create_task(obj.Payment())
+await task
 obj.DeliveryPartnerDetails()
