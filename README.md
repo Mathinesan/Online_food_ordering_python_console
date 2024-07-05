@@ -1,3 +1,5 @@
+----------Welcome to 'Not Zomato' online food ordering application----------
+
 The project is an online food ordering application that allows users to order food from various restaurants in different cities. The application 
 prompts the user to enter their name and mobile number, select their city and preferred restaurant, view the restaurant's menu, place their order, and
 choose their payment method. The application also calculates the total cost, including GST and any applicable discounts, and provides delivery partner details. 
